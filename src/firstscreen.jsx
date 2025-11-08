@@ -47,7 +47,7 @@ export default function LogoAnimation() {
             }}
           >
             {words.map((word, wi) => {
-              const firstLetter = word[0];
+              //const firstLetter = word[0];
 
               return (
                 <span key={wi} style={{ marginRight: "12px" }}>
