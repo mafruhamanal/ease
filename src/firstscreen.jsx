@@ -30,7 +30,6 @@ export default function LogoAnimation({ onComplete }) {
       clearTimeout(s4); // 3. Don't forget to clear the new timeout
     };
   }, [onComplete]); // 4. Add onComplete to the dependency array
-  const s5 = setTimeout(() => (window.location.href = "/index.js"), 6500);
 
   const gradientTextStyle = {
     background: "linear-gradient(to right, #81C995, #60a5fa, #B794F6)",

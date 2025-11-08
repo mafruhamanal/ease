@@ -2,10 +2,10 @@ import React, { useRef, useEffect, useState } from "react";
 import { Camera } from "lucide-react";
 import { getBuiltInShapes } from "./shapeUtils";
 
-const TracingGame = ({ customShapes }) => {
+const Tracing = ({ customShapes }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [coverage, setCoverage] = useState(0);
 
@@ -194,7 +194,7 @@ const TracingGame = ({ customShapes }) => {
     tracedPointsRef.current.clear();
     setCoverage(0);
     setfinishedE(false);
-    hasTriggeredSuccessRef.current = false; 
+    hasTriggeredSuccessRef.current = false;
     setCurrentShape(shapeName);
   };
 
@@ -225,7 +225,12 @@ const TracingGame = ({ customShapes }) => {
           {/* Left side - Camera */}
           <div className="flex-1">
             <div className="relative mb-4">
-              <video ref={videoRef} className="hidden" width="640" height="480" />
+              <video
+                ref={videoRef}
+                className="hidden"
+                width="640"
+                height="480"
+              />
               <canvas
                 ref={canvasRef}
                 width="640"
@@ -252,7 +257,7 @@ const TracingGame = ({ customShapes }) => {
                   </div>
                 </div>
               )}
-            
+
               <div className="text-center mt-2">
                 <span
                   className={`text-lg font-semibold ${
@@ -296,7 +301,9 @@ const TracingGame = ({ customShapes }) => {
                   {Math.floor(coverage * 100)}%
                 </span>
               </div>
-              <div className="text-gray-600 text-sm mb-2">Need 85% to complete</div>
+              <div className="text-gray-600 text-sm mb-2">
+                Need 85% to complete
+              </div>
               <div className="w-full bg-gray-300 rounded-full h-6 overflow-hidden">
                 <div
                   className={`h-full transition-all duration-300 ${
@@ -322,4 +329,4 @@ const TracingGame = ({ customShapes }) => {
   );
 };
 
-export default TracingGame;
+export default Tracing;
