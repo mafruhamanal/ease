@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import LogoAnimation from "./firstscreen";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Tracing from "./Tracing";
+import ArthritisChatbot from "./Arthritis";
 
 const ShapeTracingApp = () => {
   const [showAnimation, setShowAnimation] = useState(true);
@@ -21,10 +22,14 @@ const ShapeTracingApp = () => {
     <BrowserRouter>
       <div className="pages">
         <Routes>
-          <Route path="/" element={<Navigate to="/tracing" replace />} />
+          <Route path="/" element={<Navigate to="/ai" replace />} />
           <Route
             path="/tracing"
             element={<Tracing customShapes={customShapes} />}
+          />
+           <Route
+            path="/ai"
+            element={<ArthritisChatbot/>}
           />
           {/*<Route path="/ShapeCreator" element= {}/>*/}
           {/*<Route path="/Tracing" element= {}/>*/}
