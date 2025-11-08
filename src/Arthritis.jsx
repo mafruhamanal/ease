@@ -221,7 +221,7 @@ const ArthritisChatbot = () => {
           )}
         </div>
 
-        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="mt-4 p-4 bg-purple-50 border border-purple-300 rounded-lg">
           <p className="text-s text-yellow-900">
             <strong>⚠️ Medical Disclaimer:</strong> This chatbot provides
             general educational information and advice only. Always consult
