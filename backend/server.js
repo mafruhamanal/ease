@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, "../.env") });
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 app.use(cors());
 app.use(express.json());
@@ -37,7 +37,28 @@ app.get("/health", (req, res) => {
     geminiConfigured: !!GEMINI_API_KEY,
   });
 });
+app.post("/api/generate-report", async (req, res) => {
+  try {
+    const { prompt } = req.body;
 
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+    }
+
+    const model = ai.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    res.json({
+      content: text,
+    });
+  } catch (error) {
+    console.error("Error generating report:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 app.post("/api/mcp", async (req, res) => {
   try {
     const { tool, arguments: toolArgs } = req.body;
