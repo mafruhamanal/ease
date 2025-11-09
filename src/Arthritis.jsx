@@ -8,7 +8,7 @@ const ArthritisChatbot = () => {
   const [isListening, setIsListening] = useState(false);
   const [isMicMuted, setIsMicMuted] = useState(true);
   const conversationRef = useRef(null);
-  const audioChunksRef = useRef([]);
+  // const audioChunksRef = useRef([]);
 
   const startConversation = async () => {
     try {

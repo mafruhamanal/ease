@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import LogoAnimation from "./firstscreen";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Tracing from "./Tracing";
 import ArthritisChatbot from "./Arthritis";
 import ShapeCreator from "./ShapeCreator";
