@@ -233,92 +233,96 @@ const ExerciseMode = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <div className="bg-white rounded-lg shadow-2xl p-6">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
-          Posture Exercises
-        </h2>
+        <div className="flex gap-6">
+          <div className="flex-1">
+            <h2 className="text-3xl font-bold text-[#4c515c] mb-4 text-center">
+              Posture Exercises
+            </h2>
+            <div className="relative mb-4">
+              <video ref={videoRef} className="hidden" width="640" height="480" />
+              <canvas
+                ref={canvasRef}
+                width="640"
+                height="480"
+                className="w-full rounded-lg border-4 border-gray-300"
+              />
 
-        <div className="relative mb-4">
-          <video ref={videoRef} className="hidden" width="640" height="480" />
-          <canvas
-            ref={canvasRef}
-            width="640"
-            height="480"
-            className="w-full rounded-lg border-4 border-gray-300"
-          />
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 rounded-lg">
+                  <div className="text-white text-xl">
+                    <Camera className="animate-pulse mx-auto mb-2" size={48} />
+                    Loading camera...
+                  </div>
+                </div>
+              )}
 
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 rounded-lg">
-              <div className="text-white text-xl">
-                <Camera className="animate-pulse mx-auto mb-2" size={48} />
-                Loading camera...
+              <div className="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
+                <div className="text-sm">Exercise: {exercises[currentExercise].name}</div>
+                <div className="text-2xl font-bold">{feedback}</div>
               </div>
             </div>
-          )}
 
-          <div className="absolute top-4 left-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
-            <div className="text-sm">
-              Exercise: {exercises[currentExercise].name}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+  <div className="bg-[#D9C7FA] text-white p-4 rounded-lg text-center">
+    <div className="text-sm font-semibold">Reps</div>
+    <div className="text-4xl font-bold">{reps}</div>
+  </div>
+  <div className="bg-[#D9C7FA] text-white p-4 rounded-lg text-center">
+    <div className="text-sm font-semibold">Score</div>
+    <div className="text-4xl font-bold">{score}</div>
+  </div>
+</div>
+
+
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+              <p className="text-blue-800 font-semibold mb-2">
+                {exercises[currentExercise].icon} {exercises[currentExercise].name}
+              </p>
+              <p className="text-blue-700">
+                {exercises[currentExercise].description}
+              </p>
             </div>
-            <div className="text-2xl font-bold">{feedback}</div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-lg text-center">
-            <div className="text-sm font-semibold">Reps</div>
-            <div className="text-4xl font-bold">{reps}</div>
+            <div className="text-gray-600 text-base text-center space-y-2">
+              <p>Stand back from the camera so your full body is visible</p>
+              <p>Green skeleton = pose detected | Red dots = body landmarks</p>
+            </div>
           </div>
-          <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 rounded-lg text-center">
-            <div className="text-sm font-semibold">Score</div>
-            <div className="text-4xl font-bold">{score}</div>
-          </div>
-        </div>
 
-        <div className="bg-gray-100 rounded-lg p-4 mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">
-            Choose Exercise:
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {Object.entries(exercises).map(([key, ex]) => (
+          <div className="w-80 space-y-4 mt-16">
+            <div className="bg-gray-100 rounded-lg p-4">
+              <label className="block text-[#4c515c] font-semibold mb-2">
+                Choose Exercise:
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {Object.entries(exercises).map(([key, ex]) => (
+                  <button
+                    key={key}
+                    onClick={() => changeExercise(key)}
+                    className={`p-3 rounded-lg font-semibold transition ${
+                      currentExercise === key
+                        ? "bg-gradient-to-r from-[#B794F6] to-[#81C995] text-white"
+                        : "bg-white text-gray-800 hover:bg-gray-200"
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{ex.icon}</div>
+                    <div className="text-sm">{ex.name}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-center">
               <button
-                key={key}
-                onClick={() => changeExercise(key)}
-                className={`p-3 rounded-lg font-semibold transition ${
-                  currentExercise === key
-                    ? "bg-purple-600 text-white"
-                    : "bg-white text-gray-800 hover:bg-gray-200"
-                }`}
+                onClick={resetExercise}
+                className="bg-gradient-to-r from-[#B794F6] to-[#81C995] hover:from-[#B794F6] hover:to-[#81C995] text-white font-semibold py-4 px-10 rounded-lg transition text-xl w-full"
               >
-                <div className="text-2xl mb-1">{ex.icon}</div>
-                <div className="text-sm">{ex.name}</div>
+                Reset Stats
               </button>
-            ))}
+            </div>
           </div>
-        </div>
-
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-          <p className="text-blue-800 font-semibold mb-2">
-            {exercises[currentExercise].icon} {exercises[currentExercise].name}
-          </p>
-          <p className="text-blue-700">
-            {exercises[currentExercise].description}
-          </p>
-        </div>
-
-        <div className="flex gap-2 justify-center flex-wrap">
-          <button
-            onClick={resetExercise}
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition"
-          >
-            Reset Stats
-          </button>
-        </div>
-
-        <div className="text-gray-600 text-sm text-center mt-4 space-y-1">
-          <p>Stand back from the camera so your full body is visible</p>
-          <p>Green skeleton = pose detected | Red dots = body landmarks</p>
         </div>
       </div>
     </div>

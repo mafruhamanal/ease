@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Trash2, Plus } from "lucide-react";
+import { saveShapes, deleteShape as deleteShapeFromDB } from "./firebaseShapes";
 
 const ShapeCreator = ({ customShapes, setCustomShapes }) => {
   const canvasRef = useRef(null);
@@ -55,8 +56,10 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
       }
     });
 
-    // Calculate total points inline
-    const totalPoints = strokes.reduce((total, stroke) => total + stroke.length, 0);
+    const totalPoints = strokes.reduce(
+      (total, stroke) => total + stroke.length,
+      0
+    );
 
     ctx.fillStyle = "#bb7adcff";
     ctx.font = "16px Arial";
@@ -163,7 +166,7 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
     setStrokes([]);
   };
 
-  const saveExercise = () => {
+  const saveExercise = async () => {
     const totalPoints = getTotalPoints();
 
     if (totalPoints < 10) {
@@ -190,23 +193,35 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
     const thing2 = shapeName.trim().toLowerCase();
     const trimmed = shapeName.trim();
 
-    const newShape = {
+    const newShapeData = {
       name: thing2.replace(/\s+/g, "_"),
       displayName: trimmed,
       points: allPoints,
       custom: true,
     };
 
-    setCustomShapes([...customShapes, newShape]);
-    setStrokes([]);
-    setShapeName("");
-    alert(
-      `Exercise: "${newShape.displayName}" saved! Go to Hand Exercises to try it.`
-    );
+    try {
+      const savedShape = await saveShapes(newShapeData);
+      setCustomShapes([...customShapes, savedShape]);
+      setStrokes([]);
+      setShapeName("");
+      alert(
+        `Exercise: "${savedShape.displayName}" saved! Go to Hand Exercises to try it.`
+      );
+    } catch (error) {
+      console.error("Failed to save shape:", error);
+      alert("Error: Could not save the exercise. Please try again.");
+    }
   };
+  const deleteShape = async (shapeId) => {
+    try {
+      await deleteShapeFromDB(shapeId);
 
-  const deleteShape = (shapeName) => {
-    setCustomShapes(customShapes.filter((s) => s.name !== shapeName));
+      setCustomShapes(customShapes.filter((s) => s.id !== shapeId));
+    } catch (error) {
+      console.error("Failed to delete shape:", error);
+      alert("Error: Could not delete the shape. Please try again.");
+    }
   };
 
   return (
@@ -258,7 +273,7 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
        {/*save shape button */}
           <button
             onClick={saveExercise}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#B794F6] to-[#81C995] hover:from-[#B794F6] hover:to-[#81C995] text-white font-semibold rounded-lg transition flex-1"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#B794F6] to-[#81C995] hover:from-[#B794F6] hover:to-[#81C995] text-white font-semibold rounded-lg transition flex-1"
           >
             <Plus size={20} />
             Save Shape
@@ -297,14 +312,14 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {customShapes.map((shape) => (
                 <div
-                  key={shape.name}
+                  key={shape.id} 
                   className="flex items-center justify-between bg-gray-100 p-3 rounded-lg"
                 >
                   <span className="font-semibold text-gray-800">
                     {shape.displayName}
                   </span>
                   <button
-                    onClick={() => deleteShape(shape.name)}
+                    onClick={() => deleteShape(shape.id)} 
                     className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
                   >
                     Delete
