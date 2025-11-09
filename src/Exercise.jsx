@@ -14,7 +14,7 @@ const ExerciseMode = () => {
   const poseRef = useRef(null);
   const lastPoseStateRef = useRef(false);
   const prevFrameRef = useRef(null);
-
+  console.log(isCorrectPose);
   const exercises = {
     arms_up: {
       name: "Arms Up",
@@ -100,8 +100,6 @@ const ExerciseMode = () => {
     // Only body landmarks (no face)
     const leftShoulder = landmarks[11];
     const rightShoulder = landmarks[12];
-    const leftElbow = landmarks[13];
-    const rightElbow = landmarks[14];
     const leftWrist = landmarks[15];
     const rightWrist = landmarks[16];
     const leftHip = landmarks[23];
