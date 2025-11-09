@@ -25,13 +25,13 @@ export default function NavBar() {
         <div className={`${isOpen ? 'block' : 'hidden'} w-full md:block md:w-auto`} id="navbar-default">
           <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-[#FAF9F6] md:flex-row md:space-x-12 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-[#FAF9F6]">
             <li>
-              <a href="#" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300" aria-current="page">Hand Exercises</a>
+              <a href="/tracing" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300" aria-current="page">Hand Exercises</a>
             </li>
             <li>
-              <a href="#" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Posture</a>
+              <a href="/ai" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Posture</a>
             </li>
             <li>
-              <a href="#" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Tool</a>
+              <a href="/shapecreator" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Tool</a>
             </li>
           </ul>
         </div>

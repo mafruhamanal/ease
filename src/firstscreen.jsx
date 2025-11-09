@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 // 1. Accept `onComplete` as a prop
-export default function LogoAnimation({ onComplete }) {
+export default function LogoAnimation() {
   const [stage, setStage] = useState(0);
   const [done, setDone] = useState(false);
 
