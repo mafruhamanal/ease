@@ -32,7 +32,6 @@ const ShapeTracingApp = () => {
             element={<ArthritisChatbot/>}
           />
           {/*<Route path="/ShapeCreator" element= {}/>*/}
-          {/*<Route path="/Tracing" element= {}/>*/}
           {/*<Route path="/Posture" element= {}/> */}
         </Routes>
       </div>
