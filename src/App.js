@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { loadShapes } from "./firebaseShapes";
 import LogoAnimation from "./firstscreen";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Tracing from "./Tracing";
@@ -6,14 +7,30 @@ import ArthritisChatbot from "./Arthritis";
 import ShapeCreator from "./ShapeCreator";
 const ShapeTracingApp = () => {
 
-  const [customShapes, setCustomShapes] = useState(() => {
-    const saved = localStorage.getItem("customShapes");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [customShapes, setCustomShapes] = useState([]);
+const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    localStorage.setItem("customShapes", JSON.stringify(customShapes));
-  }, [customShapes]);
+useEffect(() => {
+  const loadShape = async () => {
+    try {
+      const shapes = await loadShapes();
+      setCustomShapes(shapes);
+    } catch (error) {
+      console.error("Failed to load shapes from Firebase:", error);
+      const saved = localStorage.getItem("customShapes");
+      if (saved) {
+        setCustomShapes(JSON.parse(saved));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadShape();
+}, []); 
+if (loading) {
+  return <div>Loading exercises...</div>;
+}
 
   return (
     <BrowserRouter>
