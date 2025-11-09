@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,9 +8,9 @@ export default function NavBar() {
   return(
     <nav className="bg-[#FAF9F6]">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-1 pb-3">
-        <a href= "/" className="flex items-center space-x-3 rtl:space-x-reverse">
+        <Link to= "/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <img src="/ease.png" className="h-12" alt="EASE Logo" />
-        </a>
+        </Link>
         <button 
           onClick={() => setIsOpen(!isOpen)}
           type="button" 
@@ -25,13 +26,13 @@ export default function NavBar() {
         <div className={`${isOpen ? 'block' : 'hidden'} w-full md:block md:w-auto`} id="navbar-default">
           <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-[#FAF9F6] md:flex-row md:space-x-12 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-[#FAF9F6]">
             <li>
-              <a href="/tracing" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300" aria-current="page">Hand Exercises</a>
+              <Link to="/tracing" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300" aria-current="page">Hand Exercises</Link>
             </li>
             <li>
-              <a href="/ai" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Posture</a>
+              <Link to="/ai" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Posture</Link>
             </li>
             <li>
-              <a href="/shapecreator" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Tool</a>
+              <Link to="/shapecreator" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Tool</Link>
             </li>
           </ul>
         </div>

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Tracing from "./Tracing";
 import ArthritisChatbot from "./Arthritis";
 import ShapeCreator from "./ShapeCreator";
+import NavBar from "./navBar";
 const ShapeTracingApp = () => {
 
   const [customShapes, setCustomShapes] = useState([]);
@@ -36,6 +37,7 @@ const ShapeTracingApp = () => {
   return (
     <BrowserRouter>
       <div className="pages">
+        <NavBar/>
         <Routes>
           <Route path="/" element={<LogoAnimation/>} />
           <Route path="/ai" element={<ArthritisChatbot />} />
