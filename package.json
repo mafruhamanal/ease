@@ -5,6 +5,7 @@
   "dependencies": {
     "@11labs/client": "^0.2.0",
     "@elevenlabs/client": "^0.9.2",
+    "@google/genai": "^1.29.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
