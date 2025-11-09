@@ -101,12 +101,19 @@ const Tracing = ({ customShapes }) => {
 
     ctx.lineWidth = 4;
     for (let i = 0; i < targetShape.length - 1; i++) {
+      const currentPoint = targetShape[i];
+      const nextPoint = targetShape[i + 1];
+
+      if (currentPoint === null || nextPoint === null) {
+        continue;
+      }
+
       const isTraced =
         tracedPointsRef.current.has(i) || tracedPointsRef.current.has(i + 1);
       ctx.strokeStyle = isTraced ? "#00ff00" : "#ffb400";
       ctx.beginPath();
-      ctx.moveTo(targetShape[i].x, targetShape[i].y);
-      ctx.lineTo(targetShape[i + 1].x, targetShape[i + 1].y);
+      ctx.moveTo(currentPoint.x, currentPoint.y);
+      ctx.lineTo(nextPoint.x, nextPoint.y);
       ctx.stroke();
     }
 
@@ -129,8 +136,14 @@ const Tracing = ({ customShapes }) => {
         let closestIdx = -1;
 
         for (let i = 0; i < targetShape.length; i++) {
-          const dx = indexX - targetShape[i].x;
-          const dy = indexY - targetShape[i].y;
+          const point = targetShape[i];
+
+          if (point === null) {
+            continue;
+          }
+
+          const dx = indexX - point.x;
+          const dy = indexY - point.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < minDist) {
@@ -140,7 +153,7 @@ const Tracing = ({ customShapes }) => {
         }
 
         const threshold = 15;
-        if (minDist < threshold) {
+        if (minDist < threshold && closestIdx !== -1) {
           tracedPointsRef.current.add(closestIdx);
           onShape = true;
 
@@ -167,11 +180,12 @@ const Tracing = ({ customShapes }) => {
       }
     }
 
-    const newCoverage = tracedPointsRef.current.size / targetShape.length;
+    const validPointsCount = targetShape.filter((p) => p !== null).length;
+    const newCoverage =
+      validPointsCount > 0 ? tracedPointsRef.current.size / validPointsCount : 0;
     setCoverage(newCoverage);
     setFingerOnShape(onShape);
 
-    // only trigger success once using ref to prev stuttering
     if (newCoverage >= 0.85 && !hasTriggeredSuccessRef.current) {
       hasTriggeredSuccessRef.current = true;
       setfinishedE(true);
@@ -217,12 +231,11 @@ const Tracing = ({ customShapes }) => {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="bg-white rounded-lg shadow-2xl p-6">
-       <h2 className="text-3xl font-bold text-[#4c515c] mb-4 text-left pl-32">
-  Alleviate Wrist Pain Through Tracing
-</h2>
+        <h2 className="text-3xl font-bold text-[#4c515c] mb-4 text-left pl-32">
+          Alleviate Wrist Pain Through Tracing
+        </h2>
 
         <div className="flex gap-6">
-          {/* Left side - Camera */}
           <div className="flex-1">
             <div className="relative mb-4">
               <video
@@ -258,17 +271,15 @@ const Tracing = ({ customShapes }) => {
                 </div>
               )}
 
-              <div className="text-center mt-2">
-                
-              </div>
+              <div className="text-center mt-2"></div>
             </div>
-           <span
-          className={`text-3xl font-semibold ml-[270px] ${
-            fingerOnShape ? "text-green-600" : "text-orange-600"
-          }`}
-        >
-          {fingerOnShape ? "✓ On Target!" : "Trace the line"}
-        </span>
+            <span
+              className={`text-3xl font-semibold ml-[270px] ${
+                fingerOnShape ? "text-green-600" : "text-orange-600"
+              }`}
+            >
+              {fingerOnShape ? "✓ On Target!" : "Trace the line"}
+            </span>
           </div>
 
           <div className="w-80 space-y-4">
@@ -282,10 +293,10 @@ const Tracing = ({ customShapes }) => {
                     key={name}
                     onClick={() => handleShapeChange(name)}
                     className={`px-4 py-3 rounded-lg font-semibold transition ${
-                    currentShape === name
-                      ? "bg-gradient-to-r from-[#B794F6] to-[#81C995] text-white"
-                      : "bg-white text-gray-800 hover:bg-gray-200"
-                  }`}
+                      currentShape === name
+                        ? "bg-gradient-to-r from-[#B794F6] to-[#81C995] text-white"
+                        : "bg-white text-gray-800 hover:bg-gray-200"
+                    }`}
                   >
                     {getDisplayName(name)}
                   </button>

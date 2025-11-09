@@ -4,14 +4,23 @@ import { Trash2, Plus } from "lucide-react";
 const ShapeCreator = ({ customShapes, setCustomShapes }) => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [points, setPoints] = useState([]);
+  const [strokes, setStrokes] = useState([]);
   const [shapeName, setShapeName] = useState("");
+  const strokesRef = useRef([]);
 
-  const MIN_DISTANCE = 5; 
+  const MIN_DISTANCE = 5;
 
   const getDistance = (p1, p2) => {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
   };
+
+  const getTotalPoints = () => {
+    return strokes.reduce((total, stroke) => total + stroke.length, 0);
+  };
+
+  useEffect(() => {
+    strokesRef.current = strokes;
+  }, [strokes]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -21,62 +30,87 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (points.length > 1) {
-      ctx.strokeStyle = "#201b1bff";
-      ctx.lineWidth = 6;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
+    strokes.forEach((stroke) => {
+      if (stroke.length > 1) {
+        ctx.strokeStyle = "#201b1bff";
+        ctx.lineWidth = 6;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
 
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
+        ctx.beginPath();
+        ctx.moveTo(stroke[0].x, stroke[0].y);
 
+        for (let i = 1; i < stroke.length - 1; i++) {
+          const xc = (stroke[i].x + stroke[i + 1].x) / 2;
+          const yc = (stroke[i].y + stroke[i + 1].y) / 2;
+          ctx.quadraticCurveTo(stroke[i].x, stroke[i].y, xc, yc);
+        }
 
-      for (let i = 1; i < points.length - 1; i++) {
-        const xc = (points[i].x + points[i + 1].x) / 2;
-        const yc = (points[i].y + points[i + 1].y) / 2;
-        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+        if (stroke.length > 1) {
+          const lastPoint = stroke[stroke.length - 1];
+          ctx.lineTo(lastPoint.x, lastPoint.y);
+        }
+
+        ctx.stroke();
       }
-
-      if (points.length > 1) {
-        const lastPoint = points[points.length - 1];
-        ctx.lineTo(lastPoint.x, lastPoint.y);
-      }
-
-      ctx.stroke();
-    }
+    });
 
     ctx.fillStyle = "#bb7adcff";
     ctx.font = "16px Arial";
-    ctx.fillText(`Points: ${points.length}`, 10, 30);
-  }, [points]);
+    ctx.fillText(`Points: ${getTotalPoints()}`, 10, 30);
+  }, [strokes]);
 
   const addPoint = (x, y) => {
-    if (points.length === 0) {
-      setPoints([{ x, y }]);
-    } else {
-      const lastPoint = points[points.length - 1];
-      const distance = getDistance(lastPoint, { x, y });
+    setStrokes((prevStrokes) => {
+      if (prevStrokes.length === 0) return prevStrokes;
 
-      if (distance >= MIN_DISTANCE) {
-        setPoints([...points, { x, y }]);
+      const currentStroke = prevStrokes[prevStrokes.length - 1];
+
+      if (currentStroke.length === 0) {
+        const newStrokes = [...prevStrokes];
+        newStrokes[newStrokes.length - 1] = [{ x, y }];
+        return newStrokes;
+      } else {
+        const lastPoint = currentStroke[currentStroke.length - 1];
+        const distance = getDistance(lastPoint, { x, y });
+
+        if (distance >= MIN_DISTANCE) {
+          const newStrokes = [...prevStrokes];
+          newStrokes[newStrokes.length - 1] = [...currentStroke, { x, y }];
+          return newStrokes;
+        }
       }
-    }
+
+      return prevStrokes;
+    });
   };
 
   const handleMouseDown = (e) => {
     setIsDrawing(true);
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setPoints([{ x, y }]);
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    setStrokes((prev) => [...prev, [{ x, y }]]);
   };
 
   const handleMouseMove = (e) => {
     if (!isDrawing) return;
 
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
     addPoint(x, y);
   };
 
@@ -88,21 +122,32 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
     e.preventDefault();
     setIsDrawing(true);
 
-    const rect = canvasRef.current.getBoundingClientRect();
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-    setPoints([{ x, y }]);
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const x = (touch.clientX - rect.left) * scaleX;
+    const y = (touch.clientY - rect.top) * scaleY;
+
+    setStrokes((prev) => [...prev, [{ x, y }]]);
   };
 
   const handleTouchMove = (e) => {
     e.preventDefault();
     if (!isDrawing) return;
 
-    const rect = canvasRef.current.getBoundingClientRect();
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const x = (touch.clientX - rect.left) * scaleX;
+    const y = (touch.clientY - rect.top) * scaleY;
     addPoint(x, y);
   };
 
@@ -112,11 +157,13 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
   };
 
   const clearCanvas = () => {
-    setPoints([]);
+    setStrokes([]);
   };
 
   const saveExercise = () => {
-    if (points.length < 10) {
+    const totalPoints = getTotalPoints();
+
+    if (totalPoints < 10) {
       alert("Try to draw a longer trace! (Need at least 10 points)");
       return;
     }
@@ -125,19 +172,30 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
       return;
     }
 
-    const simplified = points.filter((_, i) => i % 2 === 0);
+    const allPoints = [];
+    strokes.forEach((stroke, strokeIndex) => {
+      const simplified = stroke.filter((_, i) => i % 2 === 0);
+      simplified.forEach((point) => {
+        allPoints.push(point);
+      });
+
+      if (strokeIndex < strokes.length - 1) {
+        allPoints.push(null);
+      }
+    });
+
     const thing2 = shapeName.trim().toLowerCase();
     const trimmed = shapeName.trim();
 
     const newShape = {
       name: thing2.replace(/\s+/g, "_"),
       displayName: trimmed,
-      points: simplified,
+      points: allPoints,
       custom: true,
     };
 
     setCustomShapes([...customShapes, newShape]);
-    setPoints([]);
+    setStrokes([]);
     setShapeName("");
     alert(
       `Exercise: "${newShape.displayName}" saved! Go to Hand Exercises to try it.`
