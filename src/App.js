@@ -27,11 +27,16 @@ const ShapeTracingApp = () => {
             path="/tracing"
             element={<Tracing customShapes={customShapes} />}
           />
-           <Route
-            path="/ai"
-            element={<ArthritisChatbot/>}
+          <Route path="/ai" element={<ArthritisChatbot />} />
+          <Route
+            path="/shapecreator"
+            element={
+              <ShapeCreator
+                customShapes={customShapes}
+                setCustomShapes={setCustomShapes}
+              />
+            }
           />
-          <Route path="/shapecreator" element= {<ShapeCreator/>}/>
           {/*<Route path="/Posture" element= {}/> */}
         </Routes>
       </div>

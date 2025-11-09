@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Trash2, Plus } from "lucide-react";
 
-const ShapeCreator = ({ customShapes, setCustomShapes, onComplete }) => {
+const ShapeCreator = ({ customShapes, setCustomShapes }) => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [points, setPoints] = useState([]);
@@ -30,7 +30,7 @@ const ShapeCreator = ({ customShapes, setCustomShapes, onComplete }) => {
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
 
-      // Use quadratic curves for smoother lines
+
       for (let i = 1; i < points.length - 1; i++) {
         const xc = (points[i].x + points[i + 1].x) / 2;
         const yc = (points[i].y + points[i + 1].y) / 2;
