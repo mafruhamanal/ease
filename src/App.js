@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LogoAnimation from "./firstscreen";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Tracing from "./Tracing";
@@ -11,6 +11,10 @@ const ShapeTracingApp = () => {
     const saved = localStorage.getItem("customShapes");
     return saved ? JSON.parse(saved) : [];
   });
+
+  useEffect(() => {
+    localStorage.setItem("customShapes", JSON.stringify(customShapes));
+  }, [customShapes]);
 
   const handleAnimationComplete = () => {
     setShowAnimation(false);
