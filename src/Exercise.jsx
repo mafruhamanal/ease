@@ -352,10 +352,10 @@ const ExerciseMode = () => {
                 className={`font-semibold py-4 px-10 rounded-lg transition text-xl w-full ${
                   !isPoseReady
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-gradient-to-r from-[#B794F6] to-[#81C995] hover:from-[#B794F6] hover:to-[#81C995] text-white"
+                    : "bg-[#679e76] hover:bg-[#558562] text-white"
                 }`}
               >
-                Reset Stats
+                Reset 
               </button>
             </div>
           </div>
