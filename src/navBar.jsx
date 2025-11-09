@@ -1,13 +1,14 @@
 "use client";
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Hand, User, Pencil, Bot } from 'lucide-react';
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return(
     <nav className="bg-[#FAF9F6]">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-1 pb-3">
+      <div className="w-full flex flex-wrap items-center justify-between p-1 pb-3 pl-4 pr-8">
         <Link to= "/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <img src="/ease.png" className="h-12" alt="EASE Logo" />
         </Link>
@@ -24,18 +25,30 @@ export default function NavBar() {
           </svg>
         </button>
         <div className={`${isOpen ? 'block' : 'hidden'} w-full md:block md:w-auto`} id="navbar-default">
-          <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-[#FAF9F6] md:flex-row md:space-x-12 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-[#FAF9F6]">
+          <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-[#FAF9F6] md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-[#FAF9F6]">
             <li>
-              <Link to="/tracing" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300" aria-current="page">Hand Exercises</Link>
+              <Link to="/tracing" className="flex items-center gap-2 py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300" aria-current="page">
+                <Hand className="w-5 h-5 stroke-[#B794F6]" />
+                Hands
+              </Link>
             </li>
             <li>
-              <Link to="/posture" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Posture</Link>
+              <Link to="/posture" className="flex items-center gap-2 py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">
+                <User className="w-5 h-5 stroke-[#B794F6]" />
+                Posture
+              </Link>
             </li>
             <li>
-              <Link to="/shapecreator" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">Tool</Link>
+              <Link to="/shapecreator" className="flex items-center gap-2 py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">
+                <Pencil className="w-5 h-5 stroke-[#B794F6]" />
+                Create
+              </Link>
             </li>
             <li>
-              <Link to="/ai" className="block py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">AI Bot</Link>
+              <Link to="/ai" className="flex items-center gap-2 py-1 px-3 text-xl rounded-sm md:p-0 bg-gradient-to-r from-[#B794F6] to-[#81C995] bg-clip-text text-transparent hover:from-[#9A75D9] hover:to-[#6BB082] transition-all duration-300">
+                <Bot className="w-5 h-5 stroke-[#B794F6]" />
+                AI Chat
+              </Link>
             </li>
           </ul>
         </div>
