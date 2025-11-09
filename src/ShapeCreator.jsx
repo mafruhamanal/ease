@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Trash2, Plus } from "lucide-react";
-import { saveShapes, deleteShape as deleteShapeFromDB } from "./firebaseShapes";
 
 const ShapeCreator = ({ customShapes, setCustomShapes }) => {
   const canvasRef = useRef(null);
@@ -56,10 +55,8 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
       }
     });
 
-    const totalPoints = strokes.reduce(
-      (total, stroke) => total + stroke.length,
-      0
-    );
+    // Calculate total points inline
+    const totalPoints = strokes.reduce((total, stroke) => total + stroke.length, 0);
 
     ctx.fillStyle = "#bb7adcff";
     ctx.font = "16px Arial";
@@ -166,7 +163,7 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
     setStrokes([]);
   };
 
-  const saveExercise = async () => {
+  const saveExercise = () => {
     const totalPoints = getTotalPoints();
 
     if (totalPoints < 10) {
@@ -193,49 +190,32 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
     const thing2 = shapeName.trim().toLowerCase();
     const trimmed = shapeName.trim();
 
-    const newShapeData = {
+    const newShape = {
       name: thing2.replace(/\s+/g, "_"),
       displayName: trimmed,
       points: allPoints,
       custom: true,
     };
 
-    try {
-      const savedShape = await saveShapes(newShapeData);
-      setCustomShapes([...customShapes, savedShape]);
-      setStrokes([]);
-      setShapeName("");
-      alert(
-        `Exercise: "${savedShape.displayName}" saved! Go to Hand Exercises to try it.`
-      );
-    } catch (error) {
-      console.error("Failed to save shape:", error);
-      alert("Error: Could not save the exercise. Please try again.");
-    }
+    setCustomShapes([...customShapes, newShape]);
+    setStrokes([]);
+    setShapeName("");
+    alert(
+      `Exercise: "${newShape.displayName}" saved! Go to Hand Exercises to try it.`
+    );
   };
-  const deleteShape = async (shapeId) => {
-    try {
-      await deleteShapeFromDB(shapeId);
 
-      setCustomShapes(customShapes.filter((s) => s.id !== shapeId));
-    } catch (error) {
-      console.error("Failed to delete shape:", error);
-      alert("Error: Could not delete the shape. Please try again.");
-    }
+  const deleteShape = (shapeName) => {
+    setCustomShapes(customShapes.filter((s) => s.name !== shapeName));
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-lg shadow-2xl p-6">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">
           Create Your Own Trace
         </h2>
-       
-       <div className="flex gap-6">
 
-        {/*left side */}
-        <div className= "w-80 space-y-4">
-        {/*Trace name */}
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">
             Trace Name:
@@ -247,21 +227,25 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
             placeholder="e.g., Star, Loops etc."
             className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
           />
-        </div>   
-
-        {/*instruction part */}
-       <div className="bg-blue-50 border-l-4 border-blue-500 p-4"> 
-          <p className="text-blue-800 font-semibold mb-2">Instructions:</p>
-          <ul className="text-blue-700 text-sm space-y-1">
-            <li>• Give the exercise a unique name</li>
-            <li>• Click and drag to draw the trace on the canvas to the right</li>
-            <li>• Make your exercise clear and easy to trace</li>
-            <li>• Click "Save Trace" when done</li>
-          </ul>
         </div>
 
-       {/*clear button */}
-        <div className="flex gap-2">
+        <div className="mb-4 border-4 border-gray-300 rounded-lg overflow-hidden">
+          <canvas
+            ref={canvasRef}
+            width={640}
+            height={480}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            className="w-full cursor-crosshair touch-none"
+          />
+        </div>
+
+        <div className="flex gap-3 mb-6">
           <button
             onClick={clearCanvas}
             className="flex items-center gap-2 px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition"
@@ -269,41 +253,25 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
             <Trash2 size={20} />
             Clear
           </button>
-
-       {/*save shape button */}
           <button
             onClick={saveExercise}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#B794F6] to-[#81C995] hover:from-[#B794F6] hover:to-[#81C995] text-white font-semibold rounded-lg transition flex-1"
+            className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition flex-1"
           >
             <Plus size={20} />
             Save Shape
           </button>
         </div>
 
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+          <p className="text-blue-800 font-semibold mb-2">Instructions:</p>
+          <ul className="text-blue-700 text-sm space-y-1">
+            <li>• Click and drag to draw the trace</li>
+            <li>• Make your exercise clear and easy to trace</li>
+            <li>• Give the exercise a unique name</li>
+            <li>• Click "Save Trace" when done</li>
+          </ul>
         </div>
-        {/*right side */} 
-        {/*Canvas to draw */} 
-        <div className="flex-1">
-          <div className="relative">
-            <canvas
-              ref={canvasRef}
-             width={640}
-             height={480}
-             onMouseDown={handleMouseDown}
-             onMouseMove={handleMouseMove}
-             onMouseUp={handleMouseUp}
-             onMouseLeave={handleMouseUp}
-             onTouchStart={handleTouchStart}
-             onTouchMove={handleTouchMove}
-             onTouchEnd={handleTouchEnd}
-             className="w-full h-auto border-4 border-gray-300 rounded-lg cursor-crosshair touch-none"
-            />
-          </div>
-        </div>
-      </div>
 
-       
-       {/*new created shapes */}
         {customShapes && customShapes.length > 0 && (
           <div className="mt-6">
             <h3 className="text-xl font-bold text-gray-800 mb-3">
@@ -312,14 +280,14 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {customShapes.map((shape) => (
                 <div
-                  key={shape.id} 
+                  key={shape.name}
                   className="flex items-center justify-between bg-gray-100 p-3 rounded-lg"
                 >
                   <span className="font-semibold text-gray-800">
                     {shape.displayName}
                   </span>
                   <button
-                    onClick={() => deleteShape(shape.id)} 
+                    onClick={() => deleteShape(shape.name)}
                     className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
                   >
                     Delete
