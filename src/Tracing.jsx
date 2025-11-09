@@ -217,9 +217,9 @@ const Tracing = ({ customShapes }) => {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="bg-white rounded-lg shadow-2xl p-6">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
-          Alleviate Wrist Pain Through Tracing
-        </h2>
+       <h2 className="text-3xl font-bold text-[#4c515c] mb-4 text-left pl-32">
+  Alleviate Wrist Pain Through Tracing
+</h2>
 
         <div className="flex gap-6">
           {/* Left side - Camera */}
@@ -242,14 +242,14 @@ const Tracing = ({ customShapes }) => {
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 rounded-lg">
                   <div className="text-white text-xl">
                     <Camera className="animate-pulse mx-auto mb-2" size={48} />
-                    Loading the camera kekw
+                    Loading the camera...
                   </div>
                 </div>
               )}
 
               {finishedE && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 rounded-lg">
-                  <div className="text-green-400 text-6xl font-bold">
+                  <div className="text-green-400 text-5xl font-bold">
                     You completed the exercise!
                   </div>
                   <div className="text-green-400 text-4xl font-bold mt-4">
@@ -259,20 +259,21 @@ const Tracing = ({ customShapes }) => {
               )}
 
               <div className="text-center mt-2">
-                <span
-                  className={`text-lg font-semibold ${
-                    fingerOnShape ? "text-green-600" : "text-orange-600"
-                  }`}
-                >
-                  {fingerOnShape ? "✓ ON TARGET!" : "Trace the line"}
-                </span>
+                
               </div>
             </div>
+           <span
+          className={`text-3xl font-semibold ml-[270px] ${
+            fingerOnShape ? "text-green-600" : "text-orange-600"
+          }`}
+        >
+          {fingerOnShape ? "✓ On Target!" : "Trace the line"}
+        </span>
           </div>
 
           <div className="w-80 space-y-4">
             <div className="bg-gray-100 rounded-lg p-4">
-              <label className="block text-gray-700 font-semibold mb-2">
+              <label className="block text-[#4c515c] font-semibold mb-2">
                 Select Your Wrist Exercise:
               </label>
               <div className="grid grid-cols-1 gap-2">
@@ -281,10 +282,10 @@ const Tracing = ({ customShapes }) => {
                     key={name}
                     onClick={() => handleShapeChange(name)}
                     className={`px-4 py-3 rounded-lg font-semibold transition ${
-                      currentShape === name
-                        ? "bg-purple-600 text-white"
-                        : "bg-white text-gray-800 hover:bg-gray-200"
-                    }`}
+                    currentShape === name
+                      ? "bg-gradient-to-r from-[#B794F6] to-[#81C995] text-white"
+                      : "bg-white text-gray-800 hover:bg-gray-200"
+                  }`}
                   >
                     {getDisplayName(name)}
                   </button>
@@ -294,10 +295,10 @@ const Tracing = ({ customShapes }) => {
 
             <div className="bg-gray-100 rounded-lg p-4">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-800 font-semibold text-lg">
+                <span className="text-[#4c515c] font-semibold text-lg">
                   Shape: {getDisplayName(currentShape)}
                 </span>
-                <span className="text-gray-800 font-semibold">
+                <span className="text-[#4c515c] font-semibold">
                   {Math.floor(coverage * 100)}%
                 </span>
               </div>
@@ -307,7 +308,7 @@ const Tracing = ({ customShapes }) => {
               <div className="w-full bg-gray-300 rounded-full h-6 overflow-hidden">
                 <div
                   className={`h-full transition-all duration-300 ${
-                    coverage >= 0.85 ? "bg-green-500" : "bg-orange-400"
+                    coverage >= 0.85 ? "bg-green-500" : "bg-[#FF9B7D]"
                   }`}
                   style={{ width: `${coverage * 100}%` }}
                 />
@@ -317,7 +318,7 @@ const Tracing = ({ customShapes }) => {
             <div className="flex gap-2 justify-center">
               <button
                 onClick={handleReset}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition w-full"
+                className="bg-gradient-to-r from-[#B794F6] to-[#81C995] hover:from-[#B794F6] hover:to-[#81C995] text-white font-semibold py-2 px-6 rounded-lg transition w-full"
               >
                 Reset
               </button>
