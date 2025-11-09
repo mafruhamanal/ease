@@ -181,7 +181,7 @@ const ArthritisChatbot = () => {
 
         <div className="bg-white rounded-lg shadow-lg p-6 h-96 overflow-y-auto">
           {messages.length === 0 ? (
-            <div className="h-full flex items-center justify-center text-gray-400">
+            <div className="h-full flex items-center justify-center text-gray-500">
               <div className="text-center">
                 <Volume2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p className="text-xl mb-3">
