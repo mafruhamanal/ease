@@ -7,7 +7,7 @@ export default function NavBar() {
   return(
     <nav className="bg-[#FAF9F6]">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-1 pb-3">
-        <a href="#" className="flex items-center space-x-3 rtl:space-x-reverse">
+        <a href= "/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <img src="/ease.png" className="h-12" alt="EASE Logo" />
         </a>
         <button 

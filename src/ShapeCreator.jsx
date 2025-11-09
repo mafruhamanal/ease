@@ -216,6 +216,16 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
           Create Your Own Trace
         </h2>
 
+       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+          <p className="text-blue-800 font-semibold mb-2">Instructions:</p>
+          <ul className="text-blue-700 text-sm space-y-1">
+            <li>• Give the exercise a unique name</li>
+            <li>• Click and drag to draw the trace on the screen below</li>
+            <li>• Make your exercise clear and easy to trace</li>
+            <li>• Click "Save Trace" when done</li>
+          </ul>
+        </div>
+
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">
             Trace Name:
@@ -255,23 +265,14 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
           </button>
           <button
             onClick={saveExercise}
-            className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition flex-1"
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#B794F6] to-[#81C995] hover:from-[#B794F6] hover:to-[#81C995] text-white font-semibold rounded-lg transition flex-1"
           >
             <Plus size={20} />
             Save Shape
           </button>
         </div>
 
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-          <p className="text-blue-800 font-semibold mb-2">Instructions:</p>
-          <ul className="text-blue-700 text-sm space-y-1">
-            <li>• Click and drag to draw the trace</li>
-            <li>• Make your exercise clear and easy to trace</li>
-            <li>• Give the exercise a unique name</li>
-            <li>• Click "Save Trace" when done</li>
-          </ul>
-        </div>
-
+       
         {customShapes && customShapes.length > 0 && (
           <div className="mt-6">
             <h3 className="text-xl font-bold text-gray-800 mb-3">
