@@ -7,10 +7,8 @@ const ShapeCreator = ({ customShapes, setCustomShapes, onComplete }) => {
   const [points, setPoints] = useState([]);
   const [shapeName, setShapeName] = useState("");
 
-  // Add minimum distance threshold for smoother drawing
-  const MIN_DISTANCE = 5; // Adjust this value: higher = smoother but less detailed
+  const MIN_DISTANCE = 5; 
 
-  // Helper function to calculate distance between two points
   const getDistance = (p1, p2) => {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
   };
@@ -39,7 +37,6 @@ const ShapeCreator = ({ customShapes, setCustomShapes, onComplete }) => {
         ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
       }
 
-      // Draw the last segment
       if (points.length > 1) {
         const lastPoint = points[points.length - 1];
         ctx.lineTo(lastPoint.x, lastPoint.y);
@@ -54,7 +51,6 @@ const ShapeCreator = ({ customShapes, setCustomShapes, onComplete }) => {
   }, [points]);
 
   const addPoint = (x, y) => {
-    // Only add point if it's far enough from the last point
     if (points.length === 0) {
       setPoints([{ x, y }]);
     } else {
@@ -129,7 +125,6 @@ const ShapeCreator = ({ customShapes, setCustomShapes, onComplete }) => {
       return;
     }
 
-    // Less aggressive simplification since points are already filtered
     const simplified = points.filter((_, i) => i % 2 === 0);
     const thing2 = shapeName.trim().toLowerCase();
     const trimmed = shapeName.trim();
