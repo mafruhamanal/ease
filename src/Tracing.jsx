@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Camera } from "lucide-react";
 import { getBuiltInShapes } from "./shapeUtils";
 
@@ -22,7 +22,141 @@ const Tracing = ({ customShapes }) => {
     currentShapeRef.current = currentShape;
   }, [currentShape]);
 
+  const onResults = useCallback(
+    (results) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(videoRef.current, -width, 0, width, height);
+      ctx.restore();
+
+      const builtInShapes = getBuiltInShapes(width, height);
+      const allShapes = { ...builtInShapes };
+      customShapes.forEach((shape) => {
+        allShapes[shape.name] = shape.points;
+      });
+
+      const targetShape =
+        allShapes[currentShapeRef.current] || builtInShapes.circle;
+
+      ctx.lineWidth = 4;
+      for (let i = 0; i < targetShape.length - 1; i++) {
+        const currentPoint = targetShape[i];
+        const nextPoint = targetShape[i + 1];
+
+        if (currentPoint === null || nextPoint === null) {
+          continue;
+        }
+
+        const isTraced =
+          tracedPointsRef.current.has(i) || tracedPointsRef.current.has(i + 1);
+        ctx.strokeStyle = isTraced ? "#00ff00" : "#ffb400";
+        ctx.beginPath();
+        ctx.moveTo(currentPoint.x, currentPoint.y);
+        ctx.lineTo(nextPoint.x, nextPoint.y);
+        ctx.stroke();
+      }
+
+      let onShape = false;
+
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        const landmarks = results.multiHandLandmarks[0];
+
+        const indexTip = landmarks[8];
+        const indexX = Math.floor((1 - indexTip.x) * width);
+        const indexY = Math.floor(indexTip.y * height);
+
+        const middleTip = landmarks[12];
+        const middleY = Math.floor(middleTip.y * height);
+
+        const indexExtended = indexY < middleY - 10;
+
+        if (indexExtended) {
+          let minDist = Infinity;
+          let closestIdx = -1;
+
+          for (let i = 0; i < targetShape.length; i++) {
+            const point = targetShape[i];
+
+            if (point === null) {
+              continue;
+            }
+
+            const dx = indexX - point.x;
+            const dy = indexY - point.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < minDist) {
+              minDist = dist;
+              closestIdx = i;
+            }
+          }
+
+          const threshold = 15;
+          if (minDist < threshold && closestIdx !== -1) {
+            tracedPointsRef.current.add(closestIdx);
+            onShape = true;
+
+            ctx.beginPath();
+            ctx.arc(indexX, indexY, 15, 0, 2 * Math.PI);
+            ctx.strokeStyle = "#0B6623";
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.fillStyle = "#0B6623";
+            ctx.beginPath();
+            ctx.arc(indexX, indexY, 8, 0, 2 * Math.PI);
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.arc(indexX, indexY, 15, 0, 2 * Math.PI);
+            ctx.strokeStyle = "#ff0000";
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.fillStyle = "#ff0000";
+            ctx.beginPath();
+            ctx.arc(indexX, indexY, 8, 0, 2 * Math.PI);
+            ctx.fill();
+          }
+        }
+      }
+
+      const validPointsCount = targetShape.filter((p) => p !== null).length;
+      const newCoverage =
+        validPointsCount > 0
+          ? tracedPointsRef.current.size / validPointsCount
+          : 0;
+      setCoverage(newCoverage);
+      setFingerOnShape(onShape);
+
+      if (newCoverage >= 0.85 && !hasTriggeredSuccessRef.current) {
+        hasTriggeredSuccessRef.current = true;
+        setfinishedE(true);
+        setTimeout(() => {
+          setfinishedE(false);
+          hasTriggeredSuccessRef.current = false;
+        }, 3000);
+      }
+    },
+    [customShapes]
+  );
+
+  const processFrame = useCallback(async () => {
+    if (videoRef.current && handsRef.current && canvasRef.current) {
+      await handsRef.current.send({ image: videoRef.current });
+      requestAnimationFrame(processFrame);
+    }
+  }, []);
+
   useEffect(() => {
+    // Store videoRef.current in a variable to fix cleanup warning
+    const video = videoRef.current;
+
     const loadMediaPipe = async () => {
       const script = document.createElement("script");
       script.src = "https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js";
@@ -63,138 +197,13 @@ const Tracing = ({ customShapes }) => {
 
     loadMediaPipe();
 
+    // Use the stored variable in cleanup
     return () => {
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      if (video?.srcObject) {
+        video.srcObject.getTracks().forEach((track) => track.stop());
       }
     };
-  }, []);
-
-  const processFrame = async () => {
-    if (videoRef.current && handsRef.current && canvasRef.current) {
-      await handsRef.current.send({ image: videoRef.current });
-      requestAnimationFrame(processFrame);
-    }
-  };
-
-  const onResults = (results) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const width = canvas.width;
-    const height = canvas.height;
-
-    ctx.clearRect(0, 0, width, height);
-    ctx.save();
-    ctx.scale(-1, 1);
-    ctx.drawImage(videoRef.current, -width, 0, width, height);
-    ctx.restore();
-
-    const builtInShapes = getBuiltInShapes(width, height);
-    const allShapes = { ...builtInShapes };
-    customShapes.forEach((shape) => {
-      allShapes[shape.name] = shape.points;
-    });
-
-    const targetShape =
-      allShapes[currentShapeRef.current] || builtInShapes.circle;
-
-    ctx.lineWidth = 4;
-    for (let i = 0; i < targetShape.length - 1; i++) {
-      const currentPoint = targetShape[i];
-      const nextPoint = targetShape[i + 1];
-
-      if (currentPoint === null || nextPoint === null) {
-        continue;
-      }
-
-      const isTraced =
-        tracedPointsRef.current.has(i) || tracedPointsRef.current.has(i + 1);
-      ctx.strokeStyle = isTraced ? "#00ff00" : "#ffb400";
-      ctx.beginPath();
-      ctx.moveTo(currentPoint.x, currentPoint.y);
-      ctx.lineTo(nextPoint.x, nextPoint.y);
-      ctx.stroke();
-    }
-
-    let onShape = false;
-
-    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-      const landmarks = results.multiHandLandmarks[0];
-
-      const indexTip = landmarks[8];
-      const indexX = Math.floor((1 - indexTip.x) * width);
-      const indexY = Math.floor(indexTip.y * height);
-
-      const middleTip = landmarks[12];
-      const middleY = Math.floor(middleTip.y * height);
-
-      const indexExtended = indexY < middleY - 10;
-
-      if (indexExtended) {
-        let minDist = Infinity;
-        let closestIdx = -1;
-
-        for (let i = 0; i < targetShape.length; i++) {
-          const point = targetShape[i];
-
-          if (point === null) {
-            continue;
-          }
-
-          const dx = indexX - point.x;
-          const dy = indexY - point.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < minDist) {
-            minDist = dist;
-            closestIdx = i;
-          }
-        }
-
-        const threshold = 15;
-        if (minDist < threshold && closestIdx !== -1) {
-          tracedPointsRef.current.add(closestIdx);
-          onShape = true;
-
-          ctx.beginPath();
-          ctx.arc(indexX, indexY, 15, 0, 2 * Math.PI);
-          ctx.strokeStyle = "#0B6623";
-          ctx.lineWidth = 4;
-          ctx.stroke();
-          ctx.fillStyle = "#0B6623";
-          ctx.beginPath();
-          ctx.arc(indexX, indexY, 8, 0, 2 * Math.PI);
-          ctx.fill();
-        } else {
-          ctx.beginPath();
-          ctx.arc(indexX, indexY, 15, 0, 2 * Math.PI);
-          ctx.strokeStyle = "#ff0000";
-          ctx.lineWidth = 4;
-          ctx.stroke();
-          ctx.fillStyle = "#ff0000";
-          ctx.beginPath();
-          ctx.arc(indexX, indexY, 8, 0, 2 * Math.PI);
-          ctx.fill();
-        }
-      }
-    }
-
-    const validPointsCount = targetShape.filter((p) => p !== null).length;
-    const newCoverage =
-      validPointsCount > 0 ? tracedPointsRef.current.size / validPointsCount : 0;
-    setCoverage(newCoverage);
-    setFingerOnShape(onShape);
-
-    if (newCoverage >= 0.85 && !hasTriggeredSuccessRef.current) {
-      hasTriggeredSuccessRef.current = true;
-      setfinishedE(true);
-      setTimeout(() => {
-        setfinishedE(false);
-        hasTriggeredSuccessRef.current = false;
-      }, 3000);
-    }
-  };
+  }, [onResults, processFrame]);
 
   const handleReset = () => {
     tracedPointsRef.current.clear();
