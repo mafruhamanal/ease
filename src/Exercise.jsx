@@ -15,7 +15,7 @@ const ExerciseMode = () => {
   const lastPoseStateRef = useRef(false);
   const prevFrameRef = useRef(null);
   console.log(isCorrectPose);
-  
+
   const exercises = {
     arms_up: {
       name: "Arms Up",
@@ -84,78 +84,81 @@ const ExerciseMode = () => {
     }
   }, []);
 
-  const onResults = useCallback((results) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const onResults = useCallback(
+    (results) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
-    const width = canvas.width;
-    const height = canvas.height;
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
 
-    ctx.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, width, height);
 
-    ctx.save();
-    ctx.scale(-1, 1);
-    ctx.drawImage(videoRef.current, -width, 0, width, height);
-    ctx.restore();
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(videoRef.current, -width, 0, width, height);
+      ctx.restore();
 
-    if (results.poseLandmarks) {
-      // Exclude face landmarks (keep only indices >= 11)
-      const landmarks = results.poseLandmarks.filter((_, i) => i >= 11);
-      const fullLandmarks = results.poseLandmarks;
-      const connections = window.POSE_CONNECTIONS;
+      if (results.poseLandmarks) {
+        // Exclude face landmarks (keep only indices >= 11)
+        const landmarks = results.poseLandmarks.filter((_, i) => i >= 11);
+        const fullLandmarks = results.poseLandmarks;
+        const connections = window.POSE_CONNECTIONS;
 
-      if (connections) {
-        ctx.strokeStyle = "#00ff00";
-        ctx.lineWidth = 4;
+        if (connections) {
+          ctx.strokeStyle = "#00ff00";
+          ctx.lineWidth = 4;
 
-        connections.forEach(([start, end]) => {
-          // Skip drawing if either is a face landmark
-          if (start < 11 || end < 11) return;
+          connections.forEach(([start, end]) => {
+            // Skip drawing if either is a face landmark
+            if (start < 11 || end < 11) return;
 
-          const s = fullLandmarks[start];
-          const e = fullLandmarks[end];
+            const s = fullLandmarks[start];
+            const e = fullLandmarks[end];
+            ctx.beginPath();
+            ctx.moveTo((1 - s.x) * width, s.y * height);
+            ctx.lineTo((1 - e.x) * width, e.y * height);
+            ctx.stroke();
+          });
+        }
+
+        landmarks.forEach((landmark) => {
+          const x = (1 - landmark.x) * width;
+          const y = landmark.y * height;
           ctx.beginPath();
-          ctx.moveTo((1 - s.x) * width, s.y * height);
-          ctx.lineTo((1 - e.x) * width, e.y * height);
+          ctx.arc(x, y, 6, 0, 2 * Math.PI);
+          ctx.fillStyle = "#173e1aff";
+          ctx.fill();
+          ctx.strokeStyle = "#abffcbff";
+          ctx.lineWidth = 2;
           ctx.stroke();
         });
+
+        const correct = checkPose(fullLandmarks, currentExercise);
+        setIsCorrectPose(correct);
+
+        if (correct && !lastPoseStateRef.current) {
+          setReps((prev) => prev + 1);
+          setScore((prev) => prev + 10);
+          setFeedback("Perfect! 🎉");
+        } else if (correct) {
+          setFeedback("Hold it! 💪");
+        } else {
+          setFeedback("Keep trying...");
+        }
+
+        lastPoseStateRef.current = correct;
+
+        ctx.fillStyle = correct ? "#00ff00" : "#ff6b6b";
+        ctx.fillRect(20, 20, 60, 60);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 40px Arial";
+        ctx.fillText(correct ? "✓" : "✗", 30, 65);
       }
-
-      landmarks.forEach((landmark) => {
-        const x = (1 - landmark.x) * width;
-        const y = landmark.y * height;
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, 2 * Math.PI);
-        ctx.fillStyle = "#173e1aff";
-        ctx.fill();
-        ctx.strokeStyle = "#abffcbff";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      });
-
-      const correct = checkPose(fullLandmarks, currentExercise);
-      setIsCorrectPose(correct);
-
-      if (correct && !lastPoseStateRef.current) {
-        setReps((prev) => prev + 1);
-        setScore((prev) => prev + 10);
-        setFeedback("Perfect! 🎉");
-      } else if (correct) {
-        setFeedback("Hold it! 💪");
-      } else {
-        setFeedback("Keep trying...");
-      }
-
-      lastPoseStateRef.current = correct;
-
-      ctx.fillStyle = correct ? "#00ff00" : "#ff6b6b";
-      ctx.fillRect(20, 20, 60, 60);
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 40px Arial";
-      ctx.fillText(correct ? "✓" : "✗", 30, 65);
-    }
-  }, [currentExercise, checkPose]);
+    },
+    [currentExercise, checkPose]
+  );
 
   const processFrame = useCallback(async () => {
     if (videoRef.current && poseRef.current && canvasRef.current) {
@@ -206,9 +209,12 @@ const ExerciseMode = () => {
 
     loadMediaPipe();
 
+    // Capture the current video element for cleanup
+    const videoElement = videoRef.current;
+
     return () => {
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      if (videoElement?.srcObject) {
+        videoElement.srcObject.getTracks().forEach((track) => track.stop());
       }
     };
   }, [onResults, processFrame]);
@@ -230,7 +236,7 @@ const ExerciseMode = () => {
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-lg shadow-2xl p-6">
         <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
-          Posture Exercises
+          💪 Full Body Exercise Mode
         </h2>
 
         <div className="relative mb-4">
