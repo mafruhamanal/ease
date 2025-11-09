@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 // 1. Accept `onComplete` as a prop
 export default function LogoAnimation({ onComplete }) {
   const [stage, setStage] = useState(0);
+  const [done, setDone] = useState(false);
 
   const phrase = "Enhanced Arthritis Support & Exercise";
   const words = phrase.split(" ");
   const firstLetters = words.map((w) => w[0]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const s1 = setTimeout(() => setStage(1), 2500); 
@@ -15,12 +19,11 @@ export default function LogoAnimation({ onComplete }) {
     const s3 = setTimeout(() => setStage(3), 5800); 
     
 
-    // 2. Add a new timeout to call onComplete when the animation ends
+    // 2. after animation ends it should redirect to ai chatbot
     // (5800ms start + 1200ms duration = 7000ms)
     const s4 = setTimeout(() => {
-      if (onComplete) {
-        onComplete();
-      }
+      setDone(true);
+      navigate("/ai");
     }, 7000);
 
     return () => {
@@ -29,7 +32,9 @@ export default function LogoAnimation({ onComplete }) {
       clearTimeout(s3);
       clearTimeout(s4); // 3. Don't forget to clear the new timeout
     };
-  }, [onComplete]); // 4. Add onComplete to the dependency array
+  }, [navigate]); // 4. Add navigate to the dependency array
+
+  if (done) return null; //so that its removed from screen if redirect happens
 
   const gradientTextStyle = {
     background: "linear-gradient(to right, #81C995, #60a5fa, #B794F6)",

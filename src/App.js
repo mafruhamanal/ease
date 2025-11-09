@@ -5,7 +5,6 @@ import Tracing from "./Tracing";
 import ArthritisChatbot from "./Arthritis";
 import ShapeCreator from "./ShapeCreator";
 const ShapeTracingApp = () => {
-  const [showAnimation, setShowAnimation] = useState(true);
 
   const [customShapes, setCustomShapes] = useState(() => {
     const saved = localStorage.getItem("customShapes");
@@ -16,22 +15,16 @@ const ShapeTracingApp = () => {
     localStorage.setItem("customShapes", JSON.stringify(customShapes));
   }, [customShapes]);
 
-  const handleAnimationComplete = () => {
-    setShowAnimation(false);
-  };
-  if (showAnimation) {
-    return <LogoAnimation onComplete={handleAnimationComplete} />;
-  }
   return (
     <BrowserRouter>
       <div className="pages">
         <Routes>
-          <Route path="/" element={<Navigate to="/ai" replace />} />
+          <Route path="/" element={<LogoAnimation/>} />
+          <Route path="/ai" element={<ArthritisChatbot />} />
           <Route
             path="/tracing"
             element={<Tracing customShapes={customShapes} />}
           />
-          <Route path="/ai" element={<ArthritisChatbot />} />
           <Route
             path="/shapecreator"
             element={
