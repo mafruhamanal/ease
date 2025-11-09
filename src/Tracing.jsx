@@ -92,9 +92,9 @@ const Tracing = ({ customShapes }) => {
 
     const builtInShapes = getBuiltInShapes(width, height);
     const allShapes = { ...builtInShapes };
-    // customShapes.forEach((shape) => {
-    //   allShapes[shape.name] = shape.points;
-    // });
+    customShapes.forEach((shape) => {
+      allShapes[shape.name] = shape.points;
+    });
 
     const targetShape =
       allShapes[currentShapeRef.current] || builtInShapes.circle;
@@ -202,7 +202,7 @@ const Tracing = ({ customShapes }) => {
     "circle",
     "square",
     "triangle",
-    //...customShapes.map((s) => s.name),
+    ...customShapes.map((s) => s.name),
   ];
 
   const getDisplayName = (name) => {

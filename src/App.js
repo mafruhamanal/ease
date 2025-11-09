@@ -3,7 +3,7 @@ import LogoAnimation from "./firstscreen";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Tracing from "./Tracing";
 import ArthritisChatbot from "./Arthritis";
-
+import ShapeCreator from "./ShapeCreator";
 const ShapeTracingApp = () => {
   const [showAnimation, setShowAnimation] = useState(true);
 
@@ -31,7 +31,7 @@ const ShapeTracingApp = () => {
             path="/ai"
             element={<ArthritisChatbot/>}
           />
-          {/*<Route path="/ShapeCreator" element= {}/>*/}
+          <Route path="/shapecreator" element= {<ShapeCreator/>}/>
           {/*<Route path="/Posture" element= {}/> */}
         </Routes>
       </div>
