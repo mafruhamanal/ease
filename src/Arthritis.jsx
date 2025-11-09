@@ -184,12 +184,12 @@ const ArthritisChatbot = () => {
             <div className="h-full flex items-center justify-center text-gray-400">
               <div className="text-center">
                 <Volume2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p className="text-lg mb-2">
+                <p className="text-xl mb-3">
                   {isConnected
                     ? "Press the microphone button to speak"
                     : "Start the conversation to begin"}
                 </p>
-                <p className="text-sm">
+                <p className="text-base">
                   Try asking: "What should I do to help with my wrist pain?"
                 </p>
               </div>
