@@ -5,6 +5,7 @@ const ExerciseMode = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPoseReady, setIsPoseReady] = useState(false);
   const [currentExercise, setCurrentExercise] = useState("arms_up");
   const [score, setScore] = useState(0);
   const [reps, setReps] = useState(0);
@@ -14,6 +15,7 @@ const ExerciseMode = () => {
   const poseRef = useRef(null);
   const lastPoseStateRef = useRef(false);
   const prevFrameRef = useRef(null);
+  const isProcessingRef = useRef(false);
   console.log(isCorrectPose);
 
   const exercises = {
@@ -26,11 +28,6 @@ const ExerciseMode = () => {
       name: "T-Pose",
       description: "Extend both arms straight out to the sides",
       icon: "🤸",
-    },
-    squat: {
-      name: "Squat",
-      description: "Bend your knees and lower your body",
-      icon: "🏋️",
     },
     jumping_jack: {
       name: "Jumping Jack",
@@ -45,6 +42,8 @@ const ExerciseMode = () => {
     // Only body landmarks (no face)
     const leftShoulder = landmarks[11];
     const rightShoulder = landmarks[12];
+    const leftElbow = landmarks[13];
+    const rightElbow = landmarks[14];
     const leftWrist = landmarks[15];
     const rightWrist = landmarks[16];
     const leftHip = landmarks[23];
@@ -60,18 +59,20 @@ const ExerciseMode = () => {
         );
 
       case "t_pose":
-        const leftArmStraight =
-          Math.abs(leftWrist.y - leftShoulder.y) < 0.15 &&
-          leftWrist.x < leftShoulder.x - 0.15;
-        const rightArmStraight =
-          Math.abs(rightWrist.y - rightShoulder.y) < 0.15 &&
-          rightWrist.x > rightShoulder.x + 0.15;
-        return leftArmStraight && rightArmStraight;
+        // Check if arms are roughly at shoulder height (more lenient)
+        const leftArmHeight = Math.abs(leftWrist.y - leftShoulder.y) < 0.2;
+        const rightArmHeight = Math.abs(rightWrist.y - rightShoulder.y) < 0.2;
 
-      case "squat":
-        const avgKneeY = (leftKnee.y + rightKnee.y) / 2;
-        const avgHipY = (leftHip.y + rightHip.y) / 2;
-        return avgKneeY > avgHipY + 0.15;
+        // Check if arms are extended outward (wrists far from body center)
+        const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+        const leftArmExtended =
+          Math.abs(leftWrist.x - leftShoulder.x) > shoulderWidth * 0.8;
+        const rightArmExtended =
+          Math.abs(rightWrist.x - rightShoulder.x) > shoulderWidth * 0.8;
+
+        return (
+          leftArmHeight && rightArmHeight && leftArmExtended && rightArmExtended
+        );
 
       case "jumping_jack":
         const jackArmsUp =
@@ -101,8 +102,6 @@ const ExerciseMode = () => {
       ctx.restore();
 
       if (results.poseLandmarks) {
-        // Exclude face landmarks (keep only indices >= 11)
-        const landmarks = results.poseLandmarks.filter((_, i) => i >= 11);
         const fullLandmarks = results.poseLandmarks;
         const connections = window.POSE_CONNECTIONS;
 
@@ -123,7 +122,10 @@ const ExerciseMode = () => {
           });
         }
 
-        landmarks.forEach((landmark) => {
+        // Draw only body landmarks (skip face landmarks)
+        fullLandmarks.forEach((landmark, index) => {
+          if (index < 11) return; // Skip face landmarks
+
           const x = (1 - landmark.x) * width;
           const y = landmark.y * height;
           ctx.beginPath();
@@ -161,11 +163,31 @@ const ExerciseMode = () => {
   );
 
   const processFrame = useCallback(async () => {
-    if (videoRef.current && poseRef.current && canvasRef.current) {
-      await poseRef.current.send({ image: videoRef.current });
+    if (
+      videoRef.current &&
+      poseRef.current &&
+      canvasRef.current &&
+      isPoseReady &&
+      !isProcessingRef.current
+    ) {
+      isProcessingRef.current = true;
+      try {
+        await poseRef.current.send({ image: videoRef.current });
+      } catch (error) {
+        console.error("Error processing frame:", error);
+      } finally {
+        isProcessingRef.current = false;
+        requestAnimationFrame(processFrame);
+      }
+    } else if (
+      videoRef.current &&
+      poseRef.current &&
+      canvasRef.current &&
+      isPoseReady
+    ) {
       requestAnimationFrame(processFrame);
     }
-  }, []);
+  }, [isPoseReady]);
 
   useEffect(() => {
     const loadMediaPipe = async () => {
@@ -198,8 +220,12 @@ const ExerciseMode = () => {
           videoRef.current.srcObject = stream;
           videoRef.current.onloadedmetadata = () => {
             videoRef.current.play();
-            setIsLoading(false);
-            processFrame();
+            // Give MediaPipe a moment to fully initialize
+            setTimeout(() => {
+              setIsLoading(false);
+              setIsPoseReady(true);
+              processFrame();
+            }, 500);
           };
         }
       };
@@ -228,6 +254,7 @@ const ExerciseMode = () => {
   };
 
   const changeExercise = (exerciseKey) => {
+    if (!isPoseReady) return; // Don't allow switching while loading
     setCurrentExercise(exerciseKey);
     resetExercise();
   };
@@ -241,7 +268,12 @@ const ExerciseMode = () => {
               Posture Exercises
             </h2>
             <div className="relative mb-4">
-              <video ref={videoRef} className="hidden" width="640" height="480" />
+              <video
+                ref={videoRef}
+                className="hidden"
+                width="640"
+                height="480"
+              />
               <canvas
                 ref={canvasRef}
                 width="640"
@@ -259,26 +291,28 @@ const ExerciseMode = () => {
               )}
 
               <div className="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg">
-                <div className="text-sm">Exercise: {exercises[currentExercise].name}</div>
+                <div className="text-sm">
+                  Exercise: {exercises[currentExercise].name}
+                </div>
                 <div className="text-2xl font-bold">{feedback}</div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
-  <div className="bg-[#D9C7FA] text-white p-4 rounded-lg text-center">
-    <div className="text-sm font-semibold">Reps</div>
-    <div className="text-4xl font-bold">{reps}</div>
-  </div>
-  <div className="bg-[#D9C7FA] text-white p-4 rounded-lg text-center">
-    <div className="text-sm font-semibold">Score</div>
-    <div className="text-4xl font-bold">{score}</div>
-  </div>
-</div>
-
+              <div className="bg-[#D9C7FA] text-white p-4 rounded-lg text-center">
+                <div className="text-sm font-semibold">Reps</div>
+                <div className="text-4xl font-bold">{reps}</div>
+              </div>
+              <div className="bg-[#D9C7FA] text-white p-4 rounded-lg text-center">
+                <div className="text-sm font-semibold">Score</div>
+                <div className="text-4xl font-bold">{score}</div>
+              </div>
+            </div>
 
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
               <p className="text-blue-800 font-semibold mb-2">
-                {exercises[currentExercise].icon} {exercises[currentExercise].name}
+                {exercises[currentExercise].icon}{" "}
+                {exercises[currentExercise].name}
               </p>
               <p className="text-blue-700">
                 {exercises[currentExercise].description}
@@ -301,9 +335,12 @@ const ExerciseMode = () => {
                   <button
                     key={key}
                     onClick={() => changeExercise(key)}
+                    disabled={!isPoseReady}
                     className={`p-3 rounded-lg font-semibold transition ${
                       currentExercise === key
                         ? "bg-gradient-to-r from-[#B794F6] to-[#81C995] text-white"
+                        : !isPoseReady
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-white text-gray-800 hover:bg-gray-200"
                     }`}
                   >
@@ -317,7 +354,12 @@ const ExerciseMode = () => {
             <div className="flex gap-2 justify-center">
               <button
                 onClick={resetExercise}
-                className="bg-gradient-to-r from-[#B794F6] to-[#81C995] hover:from-[#B794F6] hover:to-[#81C995] text-white font-semibold py-4 px-10 rounded-lg transition text-xl w-full"
+                disabled={!isPoseReady}
+                className={`font-semibold py-4 px-10 rounded-lg transition text-xl w-full ${
+                  !isPoseReady
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-gradient-to-r from-[#B794F6] to-[#81C995] hover:from-[#B794F6] hover:to-[#81C995] text-white"
+                }`}
               >
                 Reset Stats
               </button>
