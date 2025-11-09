@@ -55,9 +55,12 @@ const ShapeCreator = ({ customShapes, setCustomShapes }) => {
       }
     });
 
+    // Calculate total points inline
+    const totalPoints = strokes.reduce((total, stroke) => total + stroke.length, 0);
+
     ctx.fillStyle = "#bb7adcff";
     ctx.font = "16px Arial";
-    ctx.fillText(`Points: ${getTotalPoints()}`, 10, 30);
+    ctx.fillText(`Points: ${totalPoints}`, 10, 30);
   }, [strokes]);
 
   const addPoint = (x, y) => {
