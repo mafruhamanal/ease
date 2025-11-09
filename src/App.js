@@ -11,29 +11,6 @@ import FingerTouchExercise from "./Exercise";
 const ShapeTracingApp = () => {
 
   const [customShapes, setCustomShapes] = useState([]);
-  // const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const loadShape = async () => {
-  //     try {
-  //       const shapes = await loadShapes();
-  //       setCustomShapes(shapes);
-  //     } catch (error) {
-  //       console.error("Failed to load shapes from Firebase:", error);
-  //       const saved = localStorage.getItem("customShapes");
-  //       if (saved) {
-  //         setCustomShapes(JSON.parse(saved));
-  //       }
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   loadShape();
-  // }, []); 
-  // if (loading) {
-  //   return <div>Loading exercises...</div>;
-  // }
 
   return (
     <BrowserRouter>
