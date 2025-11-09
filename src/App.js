@@ -7,6 +7,7 @@ import Tracing from "./Tracing";
 import ArthritisChatbot from "./Arthritis";
 import ShapeCreator from "./ShapeCreator";
 import NavBar from "./navBar";
+import FingerTouchExercise from "./Exercise";
 const ShapeTracingApp = () => {
 
   const [customShapes, setCustomShapes] = useState([]);
@@ -54,7 +55,7 @@ const ShapeTracingApp = () => {
               />
             }
           />
-          {/*<Route path="/Posture" element= {}/> */}
+          <Route path="/posture" element= {<FingerTouchExercise/>}/>
         </Routes>
       </div>
     </BrowserRouter>
